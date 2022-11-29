@@ -3,9 +3,42 @@ import fontTools.ttLib as ttlib
 from tqdm import tqdm
 import logging
 
+def main():
+    # fontToolsが警告を出力しないようにする
+    logging.disable((logging.WARNING))
+
+    # 定義
+    dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
+    text = input('Input: ') # /ʔ(ə)ŋ/は[ʔŋ̍]であって[ʔə̩ŋ]ではないよなあと思ってしまっている
+    available_fonts = set()
+
+    # 判定部分
+    for dirpath in dirpaths:
+        # tqdmでプログレスバーを表示しながら全ファイルを巡回
+        for filepath in tqdm(all_paths(dirpath)):
+            # エイリアスとしてデフォルトであるらしいので無視
+            if filepath == '/Library/Fonts/Arial Unicode.ttf':
+                continue
+            
+            # 取得
+            # set型に入れて重複を回避
+            fontname_and_availability = fetch_fontname_and_availability(text, filepath)
+
+            if fontname_and_availability is not None:
+                fontname, available = fontname_and_availability
+                if available:
+                    available_fonts.add(fontname)
+
+    # ソート
+    available_fonts_sorted = sorted(list(available_fonts))
+
+    # 出力
+    for available_font in available_fonts_sorted:
+        print(available_font)
+
 def all_paths(dir_path: str):
     'ディレクトリ下の全ファイルのパスを（再帰的に）取得する'
-
+    
     paths = []
 
     for current_path, _, files in os.walk(dir_path):
@@ -82,34 +115,5 @@ def fetch_fontname_and_availability(text: str, filepath: str):
     
     return (fontname, True)
 
-# fontToolsが警告を出力しないようにする
-logging.disable((logging.WARNING))
-
-# 定義
-dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
-text = '/ʔ(ə)ŋ/は[ʔŋ̍]であって[ʔə̩ŋ]ではないよなあと思ってしまっている'
-available_fonts = set()
-
-# 判定部分
-for dirpath in dirpaths:
-    # tqdmでプログレスバーを表示しながら全ファイルを巡回
-    for filepath in tqdm(all_paths(dirpath)):
-        # エイリアスとしてデフォルトであるらしいので無視
-        if filepath == '/Library/Fonts/Arial Unicode.ttf':
-            continue
-        
-        # 取得
-        # set型に入れて重複を回避
-        fontname_and_availability = fetch_fontname_and_availability(text, filepath)
-
-        if fontname_and_availability is not None:
-            fontname, available = fontname_and_availability
-            if available:
-                available_fonts.add(fontname)
-
-# ソート
-available_fonts_sorted = sorted(list(available_fonts))
-
-# 出力
-for available_font in available_fonts_sorted:
-    print(available_font)
+if __name__ == '__main__':
+    main()
