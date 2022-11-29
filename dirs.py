@@ -1,13 +1,22 @@
 import os
 import fontTools.ttLib as ttlib
+from tqdm import tqdm
 import logging
 
-logging.disable((logging.WARNING))
+def all_paths(dir_path: str):
+    'ディレクトリ下の全ファイルのパスを（再帰的に）取得する'
 
-from tqdm import tqdm
+    paths = []
 
-def fetch_fontname_and_availability(text, filepath):
-    '.ttf/.otf/.ttc/.otcについて、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
+    for current_path, _, files in os.walk(dir_path):
+        for file in files:
+            path = current_path + '/' + file
+            paths.append(path)
+            
+    return paths
+
+def fetch_fontname_and_availability(text: str, filepath: str):
+    '.ttf/.otf/.ttc/.otcについて、そのフォント名と、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
     
     # ファイルの存在確認
     if not os.path.isfile(filepath):
@@ -30,7 +39,6 @@ def fetch_fontname_and_availability(text, filepath):
             # cmapテーブル、nameテーブルを取得
             cmap = fontfile.getBestCmap() # TODO: 1 extra bytes in post.stringData array のような警告が出る場合がある
             name_table = fontfile['name'].names
-            
     except ttlib.TTLibError:
         # print('INVALID_FILE_FORMAT:', filepath)
         return None
@@ -64,8 +72,9 @@ def fetch_fontname_and_availability(text, filepath):
         fontname = e_family_name
     else:
         fontname = filepath[filepath.rfind('/')+1:] + ' (failed to read the font name)'
+
     # 調べたいテキストの各文字について利用可能な文字か確認
-    # 利用不可能な文字があればFalseを返す
+    # 利用不可能な文字があればFalseを返し、なければTrueを返す
     for char in text:
         if ord(char) not in available_chars:
             # print('Unavailble character:', char) <- 問い合わせがあった場合には答えるか。
@@ -73,26 +82,24 @@ def fetch_fontname_and_availability(text, filepath):
     
     return (fontname, True)
 
-def all_paths(dir_path):
-    paths = []
+# fontToolsが警告を出力しないようにする
+logging.disable((logging.WARNING))
 
-    for current_path, _, files in os.walk(dir_path):
-        for file in files:
-            path = current_path + '/' + file
-            paths.append(path)
-            
-    return paths
-
+# 定義
 dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
 text = '/ʔ(ə)ŋ/は[ʔŋ̍]であって[ʔə̩ŋ]ではないよなあと思ってしまっている'
 available_fonts = set()
 
+# 判定部分
 for dirpath in dirpaths:
+    # tqdmでプログレスバーを表示しながら全ファイルを巡回
     for filepath in tqdm(all_paths(dirpath)):
-        # エイリアスとしてデフォルトであるらしい
+        # エイリアスとしてデフォルトであるらしいので無視
         if filepath == '/Library/Fonts/Arial Unicode.ttf':
             continue
-
+        
+        # 取得
+        # set型に入れて重複を回避
         fontname_and_availability = fetch_fontname_and_availability(text, filepath)
 
         if fontname_and_availability is not None:
@@ -100,7 +107,9 @@ for dirpath in dirpaths:
             if available:
                 available_fonts.add(fontname)
 
+# ソート
 available_fonts_sorted = sorted(list(available_fonts))
 
+# 出力
 for available_font in available_fonts_sorted:
     print(available_font)
