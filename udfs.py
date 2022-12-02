@@ -82,6 +82,11 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     return (fontname, True, 0)
 
 def main_for_file(text: str, filepath: str):
+    # ファイルの存在確認
+    if not os.path.isfile(filepath):
+        print('File not found')
+        return
+    
     # fontToolsが警告を出力しないようにする
     logging.disable(logging.WARNING)
 
@@ -94,6 +99,11 @@ def main_for_file(text: str, filepath: str):
         print(status)
 
 def main_for_dir(text: str, dirpath: str):
+    # ディレクトリの存在確認
+    if not os.path.isdir(dirpath):
+        print('Directory not found')
+        return
+
     # 定義
     available_fonts = set()
 
