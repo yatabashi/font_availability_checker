@@ -15,13 +15,13 @@ def all_paths(dir_path: str):
             
     return paths
 
-def fetch_fontname_and_availability(text: str, filepath: str):
+def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, isavailable, status)
     '.ttf/.otf/.ttc/.otcについて、そのフォント名と、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
     
     # ファイルの存在確認
     if not os.path.isfile(filepath):
         # print('File not found')
-        return None
+        return (None, None, 'File not found')
     
     # ttlib.TTFontにfontNumberとして渡す値を設定する。collectionの場合は一律0とし、fontの場合、デフォルト値の-1とする。
     # TODO: これ、fontの場合も0でよかったり？
@@ -31,7 +31,7 @@ def fetch_fontname_and_availability(text: str, filepath: str):
         font_number = 0
     else:
         # print('UNSUPPORTED_FILE_TYPE:', filepath)
-        return None
+        return (None, None, 'File unsupported')
     
     # 当該フォントで利用可能な文字のdict（cmapテーブル）と、フォント名を得るためのnameテーブルを取得
     try:
@@ -41,18 +41,17 @@ def fetch_fontname_and_availability(text: str, filepath: str):
             name_table = fontfile['name'].names
     except ttlib.TTLibError:
         # print('INVALID_FILE_FORMAT:', filepath)
-        return None
+        return (None, None, 'File format invalid')
     except:
         # print('ERROR:', filepath)
-        return None
+        return (None, None, 'Failed to open the file')
     
     # cmapが有効（存在し、その要素数が1以上）だったらUnicode値のリストを取得
     # cmapはdictかNone
     if cmap:
         available_chars = cmap.keys()
     else:
-        # print('UNSUITABLE_FILE_FORMAT:', filepath)
-        return None
+        return (None, None, 'Contains no font data suitable')
         
     # フォント名を取得
     j_family_name = e_family_name = ''
@@ -78,23 +77,21 @@ def fetch_fontname_and_availability(text: str, filepath: str):
     for char in text:
         if ord(char) not in available_chars:
             # print('Unavailble character:', char) <- 問い合わせがあった場合には答えるか。
-            return (fontname, False)
+            return (fontname, False, 0)
     
-    return (fontname, True)
+    return (fontname, True, 0)
 
 def main_for_file(text: str, filepath: str):
     # fontToolsが警告を出力しないようにする
     logging.disable(logging.WARNING)
 
     # 取得
-    fontname_and_availability = fetch_fontname_and_availability(text, filepath)
+    fontname, isavailable, status = fetch_fontname_and_availability(text, filepath)
 
-    if fontname_and_availability is not None:
-        fontname, isavailable = fontname_and_availability
-        
+    if not status:
         print(f'{fontname} is{"" if isavailable else " NOT"} available for the text.')
     else:
-        print('unsupported file')
+        print(status)
 
 def main_for_dir(text: str, dirpath: str):
     # 定義
@@ -111,12 +108,10 @@ def main_for_dir(text: str, dirpath: str):
         
         # 取得
         # set型に入れて重複を回避
-        fontname_and_availability = fetch_fontname_and_availability(text, filepath)
+        fontname, isavailable, _ = fetch_fontname_and_availability(text, filepath)
 
-        if fontname_and_availability is not None:
-            fontname, available = fontname_and_availability
-            if available:
-                available_fonts.add(fontname)
+        if isavailable:
+            available_fonts.add(fontname)
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
@@ -157,12 +152,10 @@ def main_for_dirs(text: str):
             
             # 取得
             # set型に入れて重複を回避
-            fontname_and_availability = fetch_fontname_and_availability(text, filepath)
+            fontname, isavailable, _ = fetch_fontname_and_availability(text, filepath)
 
-            if fontname_and_availability is not None:
-                fontname, available = fontname_and_availability
-                if available:
-                    available_fonts.add(fontname)
+            if isavailable:
+                available_fonts.add(fontname)
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
