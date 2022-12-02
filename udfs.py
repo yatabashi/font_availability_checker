@@ -127,6 +127,7 @@ def main_for_dir(text: str, dirpath: str):
     available_fonts_sorted = sorted(list(available_fonts))
 
     # 出力
+    print(f'{len(available_fonts_sorted)} hits:')
     for available_font in available_fonts_sorted:
         print(available_font)
 
@@ -171,5 +172,6 @@ def main_for_allfonts(text: str):
     available_fonts_sorted = sorted(list(available_fonts))
 
     # 出力
+    print(f'{len(available_fonts_sorted)} hits:')
     for available_font in available_fonts_sorted:
         print(available_font)
