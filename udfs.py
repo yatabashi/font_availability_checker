@@ -1,5 +1,7 @@
 import os
 import fontTools.ttLib as ttlib
+import logging
+from tqdm import tqdm
 
 def all_paths(dir_path: str):
     'ディレクトリ下の全ファイルのパスを（再帰的に）取得する'
@@ -79,3 +81,92 @@ def fetch_fontname_and_availability(text: str, filepath: str):
             return (fontname, False)
     
     return (fontname, True)
+
+def main_for_file(text: str, filepath: str):
+    # fontToolsが警告を出力しないようにする
+    logging.disable(logging.WARNING)
+
+    # 取得
+    fontname_and_availability = fetch_fontname_and_availability(text, filepath)
+
+    if fontname_and_availability is not None:
+        fontname, isavailable = fontname_and_availability
+        
+        print(f'{fontname} is{"" if isavailable else " NOT"} available for the text.')
+    else:
+        print('unsupported file')
+
+def main_for_dir(text: str, dirpath: str):
+    # 定義
+    available_fonts = set()
+
+    # fontToolsが警告を出力しないようにする
+    logging.disable(logging.WARNING)
+
+    # tqdmでプログレスバーを表示しながら全ファイルを巡回
+    for filepath in tqdm(all_paths(dirpath)):
+        # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
+        if filepath == '/Library/Fonts/Arial Unicode.ttf':
+            continue
+        
+        # 取得
+        # set型に入れて重複を回避
+        fontname_and_availability = fetch_fontname_and_availability(text, filepath)
+
+        if fontname_and_availability is not None:
+            fontname, available = fontname_and_availability
+            if available:
+                available_fonts.add(fontname)
+
+    # ソート
+    available_fonts_sorted = sorted(list(available_fonts))
+
+    # 出力
+    for available_font in available_fonts_sorted:
+        print(available_font)
+
+def main_for_dirs(text: str):
+    # 定義
+    dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
+
+    # TODO:
+    #   Windowsへの対応
+    #       パスの生成を工夫する必要がある
+    #       階層区切りは共通で/でいいという噂
+    # os_name = os.name
+    # if os_name == 'posix':
+    #     dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
+    # elif os_name == 'nt':
+    #     dirpaths = ['C:\Windows\Fonts']
+    # else:
+    #     print('Unsupported OS')
+    #     sys.exit()
+
+    available_fonts = set()
+
+    # fontToolsが警告を出力しないようにする
+    logging.disable(logging.WARNING)
+
+    # 判定部分
+    for dirpath in dirpaths:
+        # tqdmでプログレスバーを表示しながら全ファイルを巡回
+        for filepath in tqdm(all_paths(dirpath)):
+            # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
+            if filepath == '/Library/Fonts/Arial Unicode.ttf':
+                continue
+            
+            # 取得
+            # set型に入れて重複を回避
+            fontname_and_availability = fetch_fontname_and_availability(text, filepath)
+
+            if fontname_and_availability is not None:
+                fontname, available = fontname_and_availability
+                if available:
+                    available_fonts.add(fontname)
+
+    # ソート
+    available_fonts_sorted = sorted(list(available_fonts))
+
+    # 出力
+    for available_font in available_fonts_sorted:
+        print(available_font)
