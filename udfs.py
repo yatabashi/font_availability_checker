@@ -120,7 +120,7 @@ def main_for_dir(text: str, dirpath: str):
     for available_font in available_fonts_sorted:
         print(available_font)
 
-def main_for_dirs(text: str):
+def main_for_allfonts(text: str):
     # 定義
     dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
 

@@ -1,13 +1,14 @@
 # ターミナルから実行できるようにしたい
 
+import sys
 import udfs
 
 # CUI
 # text = input('text: ')
-# type = input('file/dir/dirs: ')
+# type = input('file/dir/all: ')
 # if type in ['file', 'dir']:
 #     path = input('path: ')
-# elif type == 'dirs':
+# elif type == 'all':
 #     pass
 # else:
 #     sys.exit('Invalid input')
@@ -23,4 +24,4 @@ if type == 'file':
 elif type == 'dir':
     udfs.main_for_dir(text, path)
 elif type == 'dirs':
-    udfs.main_for_dirs(text)
+    udfs.main_for_allfonts(text)
