@@ -1,22 +1,27 @@
+# TODO: 
+# Windowsへの対応
+#    パスの生成を工夫する必要がある
+#    階層区切りは共通で/でいいという噂
+
 import os
 import fontTools.ttLib as ttlib
-from tqdm import tqdm
 import logging
+from tqdm import tqdm
 
 def main():
-    # fontToolsが警告を出力しないようにする
-    logging.disable((logging.WARNING))
-
     # 定義
     dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
     text = input('Input: ') # /ʔ(ə)ŋ/は[ʔŋ̍]であって[ʔə̩ŋ]ではないよなあと思ってしまっている
     available_fonts = set()
 
+    # fontToolsが警告を出力しないようにする
+    logging.disable(logging.WARNING)
+
     # 判定部分
     for dirpath in dirpaths:
         # tqdmでプログレスバーを表示しながら全ファイルを巡回
         for filepath in tqdm(all_paths(dirpath)):
-            # エイリアスとしてデフォルトであるらしいので無視
+            # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
             if filepath == '/Library/Fonts/Arial Unicode.ttf':
                 continue
             
@@ -70,7 +75,7 @@ def fetch_fontname_and_availability(text: str, filepath: str):
     try:
         with ttlib.TTFont(filepath, fontNumber=font_number) as fontfile:
             # cmapテーブル、nameテーブルを取得
-            cmap = fontfile.getBestCmap() # TODO: 1 extra bytes in post.stringData array のような警告が出る場合がある
+            cmap = fontfile.getBestCmap()
             name_table = fontfile['name'].names
     except ttlib.TTLibError:
         # print('INVALID_FILE_FORMAT:', filepath)
