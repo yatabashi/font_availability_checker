@@ -1,3 +1,4 @@
+import sys
 import os
 from fontTools import ttLib as ttlib
 import logging
@@ -133,20 +134,14 @@ def main_for_dir(text: str, dirpath: str):
 
 def main_for_allfonts(text: str):
     # 定義
-    dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
-
-    # TODO:
-    #   Windowsへの対応
-    #       パスの生成を工夫する必要がある
-    #       階層区切りは共通で/でいいという噂
-    # os_name = os.name
-    # if os_name == 'posix':
-    #     dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
-    # elif os_name == 'nt':
-    #     dirpaths = ['C:\Windows\Fonts']
-    # else:
-    #     print('Unsupported OS')
-    #     sys.exit()
+    os_name = os.name
+    if os_name == 'posix':
+        dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
+    elif os_name == 'nt':
+        dirpaths = ['C:\Windows\Fonts']
+    else:
+        print('Unsupported OS')
+        sys.exit()
 
     available_fonts = set()
 
