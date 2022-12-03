@@ -6,7 +6,7 @@ setup(
     version = '1.0',
     author='yatabashi',
     install_requires = ['fontTools', 'tqdm'],
-    packages=['package'],
+    packages=['fontac'],
     entry_points = {
         "console_scripts": ['fontac = package.main:main'], # ['パッケージ名 = ファイル名:関数名']
     }
