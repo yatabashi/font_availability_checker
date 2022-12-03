@@ -1,5 +1,5 @@
 import os
-import fontTools.ttLib as ttlib
+from fontTools import ttLib as ttlib
 import logging
 from tqdm import tqdm
 
