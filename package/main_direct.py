@@ -1,4 +1,4 @@
-import udfs
+from package import udfs
 
 # 直接入力
 text = '/ʔ(ə)ŋ/は[ʔŋ̍]であって[ʔə̩ŋ]ではないよなあと思ってしまっている'
