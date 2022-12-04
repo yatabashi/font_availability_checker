@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 def all_fontfile_paths(dirpath: str):
     'ディレクトリ下の全ファイルのパスを（再帰的に）取得する'
-    
+
     paths = []
 
     for current_path, _, files in os.walk(dirpath):
@@ -14,7 +14,7 @@ def all_fontfile_paths(dirpath: str):
             if file.endswith(('.ttf', '.otf', '.ttc', '.otc')):
                 path = current_path + '/' + file
                 paths.append(path)
-            
+
     return paths
 
 def isJapanese(name):
@@ -25,14 +25,14 @@ def isEnglish(name):
 
 def isFamilyName(name):
     return name.nameID == 1 or name.nameID == 16
-import time
+
 def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, isavailable, abend, message)
     '.ttf/.otf/.ttc/.otcについて、そのフォント名と、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
-    
+
     # ファイルの存在確認
     if not os.path.isfile(filepath):
         return (None, None, 1, 'File not found')
-    
+
     # 当該フォントで利用可能な文字のdict（cmapテーブル）と、フォント名を得るためのnameテーブルを取得
     try:
         # fontNumber=0 は.ttc/.otcの場合にフォントを指定するためのもの。.ttf/.otfの場合、この設定は無視される。
@@ -42,14 +42,14 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
             name_table = fontfile['name'].names
     except:
         return (None, None, 1, 'Failed to read file')
-    
+
     # cmapが有効（存在し、その要素数が1以上）だったらUnicode値のリストを取得
     # cmapはdictかNone
     if cmap:
         available_chars = cmap.keys()
     else:
         return (None, None, 1, 'Contains no font data suitable')
-        
+
     # フォント名を取得
     j_family_name = e_family_name = ''
     for name in name_table:
@@ -71,7 +71,7 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     for char in text:
         if ord(char) not in available_chars:
             return (fontname, False, 0, f'it doesn\'t contain "{char}"')
-    
+
     return (fontname, True, 0, '')
 
 def extract_available_fonts(text: str, dirpath: str):
@@ -90,7 +90,7 @@ def extract_available_fonts(text: str, dirpath: str):
         # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
         if filepath == '/Library/Fonts/Arial Unicode.ttf':
             continue
-        
+
         # 取得
         # set型に入れて重複を回避
         fontname, isavailable, _, _ = fetch_fontname_and_availability(text, filepath)
@@ -108,7 +108,7 @@ def main_for_file(text: str, filepath: str):
     if not os.path.isfile(filepath):
         print('File not found')
         return
-    
+
     # fontToolsが警告を出力しないようにする
     logging.disable(logging.WARNING)
 
