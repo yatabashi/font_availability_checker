@@ -1,6 +1,6 @@
 import argparse
 import os
-import udfs
+from . import udfs
 
 def main():
     # コマンドライン引数
