@@ -82,28 +82,11 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     
     return (fontname, True, 0)
 
-def main_for_file(text: str, filepath: str):
-    # ファイルの存在確認
-    if not os.path.isfile(filepath):
-        print('File not found')
-        return
-    
-    # fontToolsが警告を出力しないようにする
-    logging.disable(logging.WARNING)
-
-    # 取得
-    fontname, isavailable, status = fetch_fontname_and_availability(text, filepath)
-
-    if not status:
-        print(f'{fontname} is{"" if isavailable else " NOT"} available for the text.')
-    else:
-        print(status)
-
-def main_for_dir(text: str, dirpath: str):
+def extract_available_fonts(text: str, dirpath: str):
     # ディレクトリの存在確認
     if not os.path.isdir(dirpath):
         print('Directory not found')
-        return
+        return None
 
     # 定義
     available_fonts = set()
@@ -127,6 +110,31 @@ def main_for_dir(text: str, dirpath: str):
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
 
+    return available_fonts_sorted
+
+def main_for_file(text: str, filepath: str):
+    # ファイルの存在確認
+    if not os.path.isfile(filepath):
+        print('File not found')
+        return
+    
+    # fontToolsが警告を出力しないようにする
+    logging.disable(logging.WARNING)
+
+    # 取得
+    fontname, isavailable, status = fetch_fontname_and_availability(text, filepath)
+
+    if not status:
+        print(f'{fontname} is{"" if isavailable else " NOT"} available for the text.')
+    else:
+        print(status)
+
+def main_for_dir(text: str, dirpath: str):
+    available_fonts_sorted = extract_available_fonts(text, dirpath)
+
+    if available_fonts_sorted is None:
+        print('error')
+
     # 出力
     print(f'{len(available_fonts_sorted)} hits:')
     for available_font in available_fonts_sorted:
@@ -145,23 +153,9 @@ def main_for_allfonts(text: str):
 
     available_fonts = set()
 
-    # fontToolsが警告を出力しないようにする
-    logging.disable(logging.WARNING)
-
     # 判定部分
     for dirpath in dirpaths:
-        # tqdmでプログレスバーを表示しながら全ファイルを巡回
-        for filepath in tqdm(all_paths(dirpath)):
-            # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
-            if filepath == '/Library/Fonts/Arial Unicode.ttf':
-                continue
-            
-            # 取得
-            # set型に入れて重複を回避
-            fontname, isavailable, _ = fetch_fontname_and_availability(text, filepath)
-
-            if isavailable:
-                available_fonts.add(fontname)
+        available_fonts.add(extract_available_fonts(text, dirpath))
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
