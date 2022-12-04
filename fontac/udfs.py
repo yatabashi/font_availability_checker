@@ -4,18 +4,28 @@ from fontTools import ttLib as ttlib
 import logging
 from tqdm import tqdm
 
-def all_paths(dirpath: str):
+def all_fontfile_paths(dirpath: str):
     'ディレクトリ下の全ファイルのパスを（再帰的に）取得する'
     
     paths = []
 
     for current_path, _, files in os.walk(dirpath):
         for file in files:
-            path = current_path + '/' + file
-            paths.append(path)
+            if file.endswith(('.ttf', '.otf', '.ttc', '.otc')):
+                path = current_path + '/' + file
+                paths.append(path)
             
     return paths
 
+def isJapanese(name):
+    return (name.platformID == 1 and name.langID == 11) or (name.platformID == 3 and name.langID == 1041)
+
+def isEnglish(name):
+    return (name.platformID == 1 and name.langID == 0) or (name.platformID == 3 and name.langID == 1033)
+
+def isFamilyName(name):
+    return name.nameID == 1 or name.nameID == 16
+import time
 def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, isavailable, abend, message)
     '.ttf/.otf/.ttc/.otcについて、そのフォント名と、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
     
@@ -28,7 +38,7 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
         # fontNumber=0 は.ttc/.otcの場合にフォントを指定するためのもの。.ttf/.otfの場合、この設定は無視される。
         with ttlib.TTFont(filepath, fontNumber=0) as fontfile:
             # cmapテーブル、nameテーブルを取得
-            cmap = fontfile.getBestCmap()
+            cmap: dict = fontfile.getBestCmap()
             name_table = fontfile['name'].names
     except:
         return (None, None, 1, 'Failed to read file')
@@ -43,13 +53,10 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     # フォント名を取得
     j_family_name = e_family_name = ''
     for name in name_table:
-        isJapanese = (name.platformID == 1 and name.langID == 11) or (name.platformID == 3 and name.langID == 1041)
-        isEnglish = (name.platformID == 1 and name.langID == 0) or (name.platformID == 3 and name.langID == 1033)
-        
-        if isJapanese and (name.nameID == 1 or name.nameID == 16):
+        if isJapanese(name) and isFamilyName(name):
             j_family_name = str(name)
         
-        if isEnglish and (name.nameID == 1 or name.nameID == 16):
+        if isEnglish(name) and isFamilyName(name):
             e_family_name = str(name)
 
     if j_family_name:
@@ -61,7 +68,6 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
 
     # 調べたいテキストの各文字について利用可能な文字か確認
     # 利用不可能な文字があればFalseを返し、なければTrueを返す
-    # TODO:高速化できるか？
     for char in text:
         if ord(char) not in available_chars:
             return (fontname, False, 0, f'it doesn\'t contain "{char}"')
@@ -80,7 +86,7 @@ def extract_available_fonts(text: str, dirpath: str):
     logging.disable(logging.WARNING)
 
     # tqdmでプログレスバーを表示しながら全ファイルを巡回
-    for filepath in tqdm(all_paths(dirpath)):
+    for filepath in tqdm(all_fontfile_paths(dirpath)):
         # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
         if filepath == '/Library/Fonts/Arial Unicode.ttf':
             continue
