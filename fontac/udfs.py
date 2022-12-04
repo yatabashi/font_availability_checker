@@ -143,7 +143,7 @@ def main_for_allfonts(text: str):
 
     # 判定部分
     for dirpath in dirpaths:
-        available_fonts.add(extract_available_fonts(text, dirpath))
+        available_fonts.update(extract_available_fonts(text, dirpath))
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
