@@ -132,7 +132,7 @@ def main_for_allfonts(text: str):
     # 定義
     os_name = os.name
     if os_name == 'posix':
-        dirpaths = ['/System/Library/Fonts', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
+        dirpaths = ['/System/Library/Fonts', '/System/Library/AssetsV2/com_apple_MobileAsset_Font7', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
     elif os_name == 'nt':
         dirpaths = ['C:\Windows\Fonts']
     else:
