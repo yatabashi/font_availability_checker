@@ -5,7 +5,7 @@ import logging
 from tqdm import tqdm
 
 def all_fontfile_paths(dirpath: str):
-    'ディレクトリ下の全ファイルのパスを（再帰的に）取得する'
+    'ディレクトリ下の全フォントファイルのパスを（再帰的に）取得する'
 
     paths = []
 
@@ -27,7 +27,7 @@ def isFamilyName(name):
     return name.nameID == 1 or name.nameID == 16
 
 def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, isavailable, abend, message)
-    '.ttf/.otf/.ttc/.otcについて、そのフォント名と、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
+    'フォントファイルについて、そのフォント名と、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
 
     # ファイルの存在確認
     if not os.path.isfile(filepath):
@@ -75,6 +75,8 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     return (fontname, True, 0, '')
 
 def extract_available_fonts(text: str, dirpath: str):
+    '指定したディレクトリ内のフォントから、指定した文字列の表示に利用可能なものを抽出する'
+    
     # ディレクトリの存在確認
     if not os.path.isdir(dirpath):
         return None
