@@ -4,12 +4,12 @@ from fontTools import ttLib as ttlib
 import logging
 from tqdm import tqdm
 
-def all_paths(dir_path: str):
+def all_paths(dirpath: str):
     'ディレクトリ下の全ファイルのパスを（再帰的に）取得する'
     
     paths = []
 
-    for current_path, _, files in os.walk(dir_path):
+    for current_path, _, files in os.walk(dirpath):
         for file in files:
             path = current_path + '/' + file
             paths.append(path)
@@ -21,7 +21,6 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     
     # ファイルの存在確認
     if not os.path.isfile(filepath):
-        # print('File not found')
         return (None, None, 'File not found')
     
     # ttlib.TTFontにfontNumberとして渡す値を設定する。collectionの場合は一律0とし、fontの場合、デフォルト値の-1とする。
@@ -31,7 +30,6 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     elif filepath.lower().endswith('.ttc') or filepath.lower().endswith('.otc'):
         font_number = 0
     else:
-        # print('UNSUPPORTED_FILE_TYPE:', filepath)
         return (None, None, 'File unsupported')
     
     # 当該フォントで利用可能な文字のdict（cmapテーブル）と、フォント名を得るためのnameテーブルを取得
@@ -41,10 +39,8 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
             cmap = fontfile.getBestCmap()
             name_table = fontfile['name'].names
     except ttlib.TTLibError:
-        # print('INVALID_FILE_FORMAT:', filepath)
         return (None, None, 'File format invalid')
     except:
-        # print('ERROR:', filepath)
         return (None, None, 'Failed to open the file')
     
     # cmapが有効（存在し、その要素数が1以上）だったらUnicode値のリストを取得
@@ -77,7 +73,6 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     # 利用不可能な文字があればFalseを返し、なければTrueを返す
     for char in text:
         if ord(char) not in available_chars:
-            # print('Unavailble character:', char) <- 問い合わせがあった場合には答えるか。
             return (fontname, False, 0)
     
     return (fontname, True, 0)
@@ -85,7 +80,6 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
 def extract_available_fonts(text: str, dirpath: str):
     # ディレクトリの存在確認
     if not os.path.isdir(dirpath):
-        print('Directory not found')
         return None
 
     # 定義
