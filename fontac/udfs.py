@@ -76,7 +76,7 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
 
 def extract_available_fonts(text: str, dirpath: str):
     '指定したディレクトリ内のフォントから、指定した文字列の表示に利用可能なものを抽出する'
-    
+
     # ディレクトリの存在確認
     if not os.path.isdir(dirpath):
         return None
@@ -138,13 +138,13 @@ def main_for_dir(text: str, dirpath: str):
 
 def main_for_allfonts(text: str):
     # 定義
-    os_name = os.name
-    if os_name == 'posix':
+    platform = sys.platform
+    if platform == 'darwin':
         dirpaths = ['/System/Library/Fonts', '/System/Library/AssetsV2/com_apple_MobileAsset_Font7', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
-    elif os_name == 'nt':
+    elif platform == 'win32':
         dirpaths = ['C:\Windows\Fonts']
     else:
-        print('Unsupported OS')
+        print('Platform unsupported')
         sys.exit()
 
     available_fonts = set()
