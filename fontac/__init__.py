@@ -1,1 +1,1 @@
-from fontac import *
+from fontac.main import *

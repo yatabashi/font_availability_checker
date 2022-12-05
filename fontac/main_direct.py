@@ -1,4 +1,4 @@
-from fontac import udfs
+from . import udfs
 
 # 直接入力
 text = '㐧'
