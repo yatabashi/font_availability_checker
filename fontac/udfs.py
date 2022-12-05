@@ -36,6 +36,9 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
     # 当該フォントで利用可能な文字のdict（cmapテーブル）と、フォント名を得るためのnameテーブルを取得
     try:
         # fontNumber=0 は.ttc/.otcの場合にフォントを指定するためのもの。.ttf/.otfの場合、この設定は無視される。
+        # 下記リンク参照
+        # https://fonttools.readthedocs.io/en/latest/ttLib/ttFont.html#fontTools.ttLib.ttFont.TTFont
+        # https://aznote.jakou.com/prog/opentype/05_name.html
         with ttlib.TTFont(filepath, fontNumber=0) as fontfile:
             # cmapテーブル、nameテーブルを取得
             cmap: dict = fontfile.getBestCmap()
@@ -51,6 +54,9 @@ def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, i
         return (None, None, 1, 'Contains no font data suitable')
 
     # フォント名を取得
+    # リファレンス（下記リンク）を参照
+    # https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6name.html
+    # https://learn.microsoft.com/en-us/typography/opentype/spec/name#platform-encoding-and-language-ids
     j_family_name = e_family_name = ''
     for name in name_table:
         if isJapanese(name) and isFamilyName(name):
@@ -85,6 +91,8 @@ def extract_available_fonts(text: str, dirpath: str):
     available_fonts = set()
 
     # fontToolsが警告を出力しないようにする
+    # unpackPStrings()内でwarningが出力されている（下記リンク参照）
+    # https://fonttools.readthedocs.io/en/latest/_modules/fontTools/ttLib/tables/_p_o_s_t.html
     logging.disable(logging.WARNING)
 
     # tqdmでプログレスバーを表示しながら全ファイルを巡回
