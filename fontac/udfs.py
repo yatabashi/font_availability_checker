@@ -25,7 +25,7 @@ def isEnglish(name):
 def isFamilyName(name):
     return name.nameID == 1 or name.nameID == 16
 
-def fetch_fontname_and_availability(text: str, filepath: str): # -> (fontname, isavailable, abend, message)
+def check_availability(text: str, filepath: str): # -> (fontname, isavailable, abend, message)
     'フォントファイルについて、そのフォント名と、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
 
     # ファイルの存在確認
@@ -97,7 +97,7 @@ def extract_available_fonts(text: str, dirpath: str):
 
         # 取得
         # set型に入れて重複を回避
-        fontname, isavailable, _, _ = fetch_fontname_and_availability(text, filepath)
+        fontname, isavailable, _, _ = check_availability(text, filepath)
 
         if isavailable:
             available_fonts.add(fontname)
@@ -109,7 +109,7 @@ def extract_available_fonts(text: str, dirpath: str):
 
 def main_for_file(text: str, filepath: str):
     # 取得
-    fontname, isavailable, abend, message = fetch_fontname_and_availability(text, filepath)
+    fontname, isavailable, abend, message = check_availability(text, filepath)
 
     if not abend:
         if isavailable:
