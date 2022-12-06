@@ -136,7 +136,7 @@ def main_for_allfonts(text: str):
     if platform == 'darwin':
         dirpaths = ['/System/Library/Fonts', '/System/Library/AssetsV2/com_apple_MobileAsset_Font7', '/Library/Fonts', os.path.expanduser('~/Library/Fonts')]
     elif platform == 'win32':
-        dirpaths = ['C:\Windows\Fonts']
+        dirpaths = ['C:\Windows\Fonts', os.path.expanduser('~\AppData\Local\Microsoft\Windows\Fonts')]
     else:
         print('Platform unsupported')
         sys.exit()
