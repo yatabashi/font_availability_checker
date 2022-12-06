@@ -1,7 +1,6 @@
 import sys
 import os
 from fontTools import ttLib as ttlib
-import logging
 from tqdm import tqdm
 
 def all_fontfile_paths(dirpath: str):
@@ -90,11 +89,6 @@ def extract_available_fonts(text: str, dirpath: str):
     # 定義
     available_fonts = set()
 
-    # fontToolsが警告を出力しないようにする
-    # unpackPStrings()内でwarningが出力されている（下記リンク参照）
-    # https://fonttools.readthedocs.io/en/latest/_modules/fontTools/ttLib/tables/_p_o_s_t.html
-    logging.disable(logging.WARNING)
-
     # tqdmでプログレスバーを表示しながら全ファイルを巡回
     for filepath in tqdm(all_fontfile_paths(dirpath)):
         # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
@@ -114,14 +108,6 @@ def extract_available_fonts(text: str, dirpath: str):
     return available_fonts_sorted
 
 def main_for_file(text: str, filepath: str):
-    # ファイルの存在確認
-    if not os.path.isfile(filepath):
-        print('File not found')
-        return
-
-    # fontToolsが警告を出力しないようにする
-    logging.disable(logging.WARNING)
-
     # 取得
     fontname, isavailable, abend, message = fetch_fontname_and_availability(text, filepath)
 

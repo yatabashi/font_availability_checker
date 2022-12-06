@@ -1,6 +1,7 @@
 import argparse
 import os
-from . import udfs
+import logging
+import udfs
 
 def main():
     # コマンドライン引数
@@ -22,6 +23,11 @@ def main():
         path = os.path.abspath(args.directory)
     else:
         type = 'all'
+
+    # fontToolsが警告を出力しないようにする
+    # unpackPStrings()内でwarningが出力されている（下記リンク参照）
+    # https://fonttools.readthedocs.io/en/latest/_modules/fontTools/ttLib/tables/_p_o_s_t.html
+    logging.disable(logging.WARNING)
 
     # 実行
     if type == 'file':

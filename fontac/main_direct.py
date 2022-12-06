@@ -1,9 +1,12 @@
-from . import udfs
+import logging
+import udfs
 
 # 直接入力
 text = '㐧'
 type = 'all'
 path = ''
+
+logging.disable(logging.WARNING)
 
 # 実行
 if type == 'file':
