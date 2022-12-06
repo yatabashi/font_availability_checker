@@ -1,1 +1,3 @@
-from fontac.main import *
+from fontac import *
+
+__all__ = ['main']
