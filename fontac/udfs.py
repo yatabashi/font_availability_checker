@@ -112,7 +112,7 @@ def main_for_dir(text: str, dirpath: str):
         fontname, isavailable, _, _ = check_availability(text, filepath)
 
         if isavailable:
-            available_fonts.add(fontname)
+            available_fonts.add((fontname, filepath))
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
@@ -148,7 +148,7 @@ def main_for_allfonts(text: str):
             fontname, isavailable, _, _ = check_availability(text, filepath)
 
             if isavailable:
-                available_fonts.add(fontname)
+                available_fonts.add((fontname, filepath))
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
