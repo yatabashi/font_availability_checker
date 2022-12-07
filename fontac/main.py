@@ -8,8 +8,8 @@ def main():
     parser = argparse.ArgumentParser()
 
     meg = parser.add_mutually_exclusive_group()
-    meg.add_argument('-f', '--file', help='specifies a font file checked')
-    meg.add_argument('-d', '--directory', help='specifies a directory in which font files checked exist')
+    meg.add_argument('-f', '--file', help='the font file checked')
+    meg.add_argument('-d', '--directory', help='the directory which contains the font files checked')
     parser.add_argument('-p', '--show-paths', action='store_true', help='whether it outputs the paths of the applicable fonts besides')
     parser.add_argument('text')
 
