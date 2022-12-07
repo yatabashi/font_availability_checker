@@ -1,5 +1,5 @@
 import logging
-import udfs
+from fontac import udfs
 
 # 直接入力
 text = '㐧' # 検索対象の文字列を指定する
@@ -13,6 +13,6 @@ logging.disable(logging.WARNING)
 if type == 'file':
     udfs.main_for_file(text, path)
 elif type == 'dir':
-    udfs.main_for_dir(text, path)
+    udfs.main_for_dir(text, path, show_paths)
 elif type == 'all':
-    udfs.main_for_allfonts(text)
+    udfs.main_for_allfonts(text, show_paths)
