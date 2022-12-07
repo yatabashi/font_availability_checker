@@ -2,6 +2,7 @@ import sys
 import os
 from fontTools import ttLib as ttlib
 from tqdm import tqdm
+import typing
 
 def all_fontfile_paths(dirpath: str):
     'ディレクトリ下の全フォントファイルのパスを（再帰的に）取得する'
@@ -91,7 +92,7 @@ def main_for_file(text: str, filepath: str):
     else:
         print(message)
 
-def main_for_dir(text: str, dirpath: str):
+def main_for_dir(text: str, dirpath: str, show_paths: bool):
     # ディレクトリの存在確認
     if not os.path.isdir(dirpath):
         print('Directory not found')
@@ -99,6 +100,7 @@ def main_for_dir(text: str, dirpath: str):
 
     # 定義
     available_fonts = set()
+    fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
     # 判定部分
     # tqdmでプログレスバーを表示しながら全ファイルを巡回
@@ -112,17 +114,28 @@ def main_for_dir(text: str, dirpath: str):
         fontname, isavailable, _, _ = check_availability(text, filepath)
 
         if isavailable:
-            available_fonts.add((fontname, filepath))
+            available_fonts.add(fontname)
+
+            if fontname in fontname_to_paths:
+                fontname_to_paths[fontname].append(filepath)
+            else:
+                fontname_to_paths[fontname] = [filepath]
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
 
     # 出力
     print(f'{len(available_fonts_sorted)} hits:')
-    for available_font in available_fonts_sorted:
-        print(available_font)
 
-def main_for_allfonts(text: str):
+    if show_paths:
+        for available_font in available_fonts_sorted:
+            print(f'{available_font}: {fontname_to_paths[available_font]}')
+    else:
+        for available_font in available_fonts_sorted:
+            print(available_font)
+
+
+def main_for_allfonts(text: str, show_paths: bool):
     # 定義
     platform = sys.platform
     if platform == 'darwin':
@@ -134,6 +147,7 @@ def main_for_allfonts(text: str):
         sys.exit()
 
     available_fonts = set()
+    fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
     # 判定部分
     for dirpath in dirpaths:
@@ -148,12 +162,22 @@ def main_for_allfonts(text: str):
             fontname, isavailable, _, _ = check_availability(text, filepath)
 
             if isavailable:
-                available_fonts.add((fontname, filepath))
+                available_fonts.add(fontname)
+
+                if fontname in fontname_to_paths:
+                    fontname_to_paths[fontname].append(filepath)
+                else:
+                    fontname_to_paths[fontname] = [filepath]
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
 
     # 出力
     print(f'{len(available_fonts_sorted)} hits:')
-    for available_font in available_fonts_sorted:
-        print(available_font)
+
+    if show_paths:
+        for available_font in available_fonts_sorted:
+            print(f'{available_font}: {fontname_to_paths[available_font]}')
+    else:
+        for available_font in available_fonts_sorted:
+            print(available_font)
