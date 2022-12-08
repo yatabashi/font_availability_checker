@@ -2,6 +2,8 @@
 
 i.e. <ins>Font</ins> <ins>A</ins>vailability <ins>C</ins>hecker
 
+他言語版：[English](./README-en.md)
+
 ある文字列を表示可能なフォントの一覧を出力したり、特定のフォントがその文字列を表示可能かどうかを返答したりするプログラムを公開しています。
 
 ## インストール

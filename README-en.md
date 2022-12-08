@@ -2,6 +2,8 @@
 
 i.e. <ins>Font</ins> <ins>A</ins>vailability <ins>C</ins>hecker
 
+In other languages：[日本語](./README.md)
+
 Here I publish a program that outputs the fonts which can display the characters, or tells whether a particular font is available for a text.
 
 ## Installation
