@@ -15,7 +15,7 @@ def all_fontfile_paths(dirpath: str):
                 path = current_path + '/' + file
                 paths.append(path)
 
-    return paths
+    return sorted(paths)
 
 def isJapanese(name):
     return (name.platformID == 1 and name.langID == 11) or (name.platformID == 3 and name.langID == 1041)
@@ -92,7 +92,7 @@ def main_for_file(text: str, filepath: str):
     else:
         print(message)
 
-def main_for_dir(text: str, dirpath: str, shows_paths: bool):
+def main_for_dir(text: str, dirpath: str, shows_paths: bool, is_verbose: bool):
     # ディレクトリの存在確認
     if not os.path.isdir(dirpath):
         print('Directory not found')
@@ -103,23 +103,57 @@ def main_for_dir(text: str, dirpath: str, shows_paths: bool):
     fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
     # 判定部分
-    # tqdmでプログレスバーを表示しながら全ファイルを巡回
-    for filepath in tqdm(all_fontfile_paths(dirpath)):
+    if is_verbose:
+        paths = all_fontfile_paths(dirpath)
         # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
-        if filepath == '/Library/Fonts/Arial Unicode.ttf':
-            continue
+        if '/Library/Fonts/Arial Unicode.ttf' in paths:
+            paths.remove('/Library/Fonts/Arial Unicode.ttf')
+        
+        k = 1
+        n = len(paths)
+        digits_of_n = len(str(n))
 
-        # 取得
-        # set型に入れて重複を回避
-        fontname, isavailable, _, _ = check_availability(text, filepath)
+        # tqdmでプログレスバーを表示しながら全ファイルを巡回
+        for filepath in paths:
+            # 取得
+            fontname, isavailable, abend, message = check_availability(text, filepath)
 
-        if isavailable:
-            available_fonts.add(fontname)
-
-            if fontname in fontname_to_paths:
-                fontname_to_paths[fontname].append(filepath)
+            # 判定結果の出力
+            no = str(k).rjust(digits_of_n) + '/' + str(n) + ' '
+            if not abend:
+                if isavailable:
+                    print(no + fontname + ' - True')
+                else:
+                    print(no + fontname + ' - False: ' + message)
             else:
-                fontname_to_paths[fontname] = [filepath]
+                print(no + 'Error: ' + message)
+
+            # 記録
+            # set型に入れて重複を回避
+            if isavailable:
+                available_fonts.add(fontname)
+
+                if fontname in fontname_to_paths:
+                    fontname_to_paths[fontname].append(filepath)
+                else:
+                    fontname_to_paths[fontname] = [filepath]
+            
+            k += 1
+    else:
+        # tqdmでプログレスバーを表示しながら全ファイルを巡回
+        for filepath in tqdm(all_fontfile_paths(dirpath)):
+            # 取得
+            fontname, isavailable, abend, message = check_availability(text, filepath)
+
+            # 記録
+            # set型に入れて重複を回避
+            if isavailable:
+                available_fonts.add(fontname)
+
+                if fontname in fontname_to_paths:
+                    fontname_to_paths[fontname].append(filepath)
+                else:
+                    fontname_to_paths[fontname] = [filepath]
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))
@@ -135,7 +169,7 @@ def main_for_dir(text: str, dirpath: str, shows_paths: bool):
             print(available_font)
 
 
-def main_for_allfonts(text: str, shows_paths: bool):
+def main_for_allfonts(text: str, shows_paths: bool, is_verbose: bool):
     # 定義
     platform = sys.platform
     if platform == 'darwin':
@@ -150,24 +184,58 @@ def main_for_allfonts(text: str, shows_paths: bool):
     fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
     # 判定部分
-    for dirpath in dirpaths:
-        # tqdmでプログレスバーを表示しながら全ファイルを巡回
-        for filepath in tqdm(all_fontfile_paths(dirpath)):
+    if is_verbose:
+        for dirpath in dirpaths:
+            paths = all_fontfile_paths(dirpath)
             # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
-            if filepath == '/Library/Fonts/Arial Unicode.ttf':
-                continue
+            if '/Library/Fonts/Arial Unicode.ttf' in paths:
+                paths.remove('/Library/Fonts/Arial Unicode.ttf')
+            
+            k = 1
+            n = len(paths)
+            digits_of_n = len(str(n))
 
-            # 取得
-            # set型に入れて重複を回避
-            fontname, isavailable, _, _ = check_availability(text, filepath)
+            # tqdmでプログレスバーを表示しながら全ファイルを巡回
+            for filepath in paths:
+                # 取得
+                fontname, isavailable, abend, message = check_availability(text, filepath)
 
-            if isavailable:
-                available_fonts.add(fontname)
-
-                if fontname in fontname_to_paths:
-                    fontname_to_paths[fontname].append(filepath)
+                # 判定結果の出力
+                no = str(k).rjust(digits_of_n) + '/' + str(n) + ' '
+                if not abend:
+                    if isavailable:
+                        print(no + fontname + ' - True')
+                    else:
+                        print(no + fontname + ' - False: ' + message)
                 else:
-                    fontname_to_paths[fontname] = [filepath]
+                    print(no + 'Error: ' + message)
+
+                # 記録
+                # set型に入れて重複を回避
+                if isavailable:
+                    available_fonts.add(fontname)
+
+                    if fontname in fontname_to_paths:
+                        fontname_to_paths[fontname].append(filepath)
+                    else:
+                        fontname_to_paths[fontname] = [filepath]
+
+                k += 1
+    else:
+        for dirpath in dirpaths:
+            # tqdmでプログレスバーを表示しながら全ファイルを巡回
+            for filepath in tqdm(all_fontfile_paths(dirpath)):
+                # 取得
+                # set型に入れて重複を回避
+                fontname, isavailable, _, _ = check_availability(text, filepath)
+
+                if isavailable:
+                    available_fonts.add(fontname)
+
+                    if fontname in fontname_to_paths:
+                        fontname_to_paths[fontname].append(filepath)
+                    else:
+                        fontname_to_paths[fontname] = [filepath]
 
     # ソート
     available_fonts_sorted = sorted(list(available_fonts))

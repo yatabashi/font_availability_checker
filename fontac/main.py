@@ -11,6 +11,7 @@ def main():
     meg.add_argument('-f', '--file', help='the font file checked')
     meg.add_argument('-d', '--directory', help='the directory which contains the font files checked')
     parser.add_argument('-p', '--shows-paths', action='store_true', help='whether it outputs the paths of the applicable fonts besides')
+    parser.add_argument('-v', '--verbose', action='store_true', help='whether it outputs the results of the determinations of each font point by point')
     parser.add_argument('text')
 
     args = parser.parse_args()
@@ -34,9 +35,9 @@ def main():
     if type == 'file':
         udfs.main_for_file(text, path)
     elif type == 'dir':
-        udfs.main_for_dir(text, path, args.show_paths)
+        udfs.main_for_dir(text, path, args.shows_paths, args.verbose)
     elif type == 'all':
-        udfs.main_for_allfonts(text, args.shows_paths)
+        udfs.main_for_allfonts(text, args.shows_paths, args.verbose)
 
 if '__name__' == '__main__':
     main()
