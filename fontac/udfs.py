@@ -92,7 +92,7 @@ def main_for_file(text: str, filepath: str):
     else:
         print(message)
 
-def main_for_dir(text: str, dirpath: str, show_paths: bool):
+def main_for_dir(text: str, dirpath: str, shows_paths: bool):
     # ディレクトリの存在確認
     if not os.path.isdir(dirpath):
         print('Directory not found')
@@ -127,7 +127,7 @@ def main_for_dir(text: str, dirpath: str, show_paths: bool):
     # 出力
     print(f'{len(available_fonts_sorted)} hits:')
 
-    if show_paths:
+    if shows_paths:
         for available_font in available_fonts_sorted:
             print(f'{available_font}: {fontname_to_paths[available_font]}')
     else:
@@ -135,7 +135,7 @@ def main_for_dir(text: str, dirpath: str, show_paths: bool):
             print(available_font)
 
 
-def main_for_allfonts(text: str, show_paths: bool):
+def main_for_allfonts(text: str, shows_paths: bool):
     # 定義
     platform = sys.platform
     if platform == 'darwin':
@@ -175,7 +175,7 @@ def main_for_allfonts(text: str, show_paths: bool):
     # 出力
     print(f'{len(available_fonts_sorted)} hits:')
 
-    if show_paths:
+    if shows_paths:
         for available_font in available_fonts_sorted:
             print(f'{available_font}: {fontname_to_paths[available_font]}')
     else:
