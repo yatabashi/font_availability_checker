@@ -46,7 +46,7 @@ When executing the program, set the text to be displayed, the search target and 
     | with `-d` and dir path | `type == 'dir'`with `path` set | Outputs ones capable of displaying the specified text from among the fonts located in the specified directory (recursively searched) |
     | without either | `type == 'all'`with `path` set | Outputs ones capable of displaying the specified text from among all the fonts installed (no limitation of search range) |
 
-* Output format (valid only if the search range is limited)
+* Output format (valid only if the search target is NOT a single font)
     | CLI | main_direct.py | description |
     | - | - | - |
     | with `-p` | `show_paths == True` | Outputs the font names and the paths of the corresponding files |
