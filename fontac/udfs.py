@@ -82,13 +82,13 @@ def check_availability(text: str, filepath: str): # -> (fontname, isavailable, a
 
 def main_for_file(text: str, filepath: str):
     # 取得
-    fontname, isavailable, abend, message = check_availability(text, filepath)
+    _, isavailable, abend, message = check_availability(text, filepath)
 
     if not abend:
         if isavailable:
-            print(f'{fontname} is available for the text.')
+            print(f'Yes, available.')
         else:
-            print(f'{fontname} is NOT available for the text; {message}')
+            print(f'No, unavailable; {message}')
     else:
         print(message)
 
