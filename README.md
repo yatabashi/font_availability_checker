@@ -4,7 +4,7 @@ i.e. <ins>Font</ins> <ins>A</ins>vailability <ins>C</ins>hecker
 
 他言語版：[English](./README-en.md)
 
-ある文字列を表示可能なフォントの一覧を出力したり、特定のフォントがその文字列を表示可能かどうかを返答したりするプログラムを公開しています。
+`fontac`は、ある文字列を表示可能なフォントをリストアップするプログラムです。
 
 ## インストール
 CLIツールとして利用する（macOSでのみ可能）ためには、次のコマンドを実行してください：
@@ -13,12 +13,12 @@ pip install git+https://github.com/yatabashi/font_availability_checker.git@main
 ```
 アンインストールは`pip uninstall fontac`で可能です。
 
-また、プログラムに条件を直接書き込んで利用することも可能です。その場合、次のようにしてパッケージをダウンロードしてください。
-* Gitがインストール**されている**場合、次を実行する：  
+また、ソースファイルを直接実行して利用することも可能です。その場合、次のようにしてパッケージをダウンロードしてください。
+* Gitがインストールされている場合、次を実行する：  
     ```
     git clone https://github.com/yatabashi/font_availability_checker.git
     ```
-* Gitがインストール**されていない**場合、緑色のボタン「Code」をクリックし、「Download ZIP」によりZIPファイルをダウンロードして、これを展開する。
+* Gitがインストールされて**いない**場合、緑色のボタン「Code」をクリックし、「Download ZIP」からZIPファイルをダウンロードして、これを展開する。
 
 ## 使い方
 * CLIツールとして使う：  
@@ -29,9 +29,9 @@ pip install git+https://github.com/yatabashi/font_availability_checker.git@main
     詳細は下記を参照してください。
 
 * ソースファイルを直接使う：  
-`fontac/main_direct.py`を利用してください。その際、5行目から8行目の4つの変数（`text`, `type`, `path`, `show_paths`）を設定してください。詳細は下記を参照してください。
+`fontac/main_direct.py`を利用してください。5行目から9行目の変数が設定される必要があります。詳細は下記を参照してください。
 
-実行の際は、表示したいテキスト、検索対象、出力形式を設定してください。
+実行の際は、表示したいテキスト、検索対象、出力形式を指定してください。
 * 表示したいテキスト
     | CLI | main_direct.py |
     | - | - |
@@ -53,4 +53,4 @@ pip install git+https://github.com/yatabashi/font_availability_checker.git@main
     | CLI | main_direct.py | 説明 |
     | - | - | - |
     | `-p`あり | `show_paths == True` | フォント名と、対応するフォントファイルのパスを出力する |
-    | `-p`なし | `show_paths == False` | フォント名のみを出力する（デフォルト） |
+    | `-p`なし | `show_paths == False` | フォント名のみを出力する |
