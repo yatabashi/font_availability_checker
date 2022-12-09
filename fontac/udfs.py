@@ -17,16 +17,31 @@ def all_fontfile_paths(dirpath: str):
 
     return sorted(paths)
 
-def isJapanese(name):
-    return (name.platformID == 1 and name.langID == 11) or (name.platformID == 3 and name.langID == 1041)
+def get_fontname(name_table, filepath):
+    # リファレンス（下記リンク）を参照
+    # https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6name.html
+    # https://learn.microsoft.com/en-us/typography/opentype/spec/name#platform-encoding-and-language-ids
 
-def isEnglish(name):
-    return (name.platformID == 1 and name.langID == 0) or (name.platformID == 3 and name.langID == 1033)
+    j_family_name = e_family_name = ''
+    for name in name_table:
+        isJapanese = (name.platformID == 1 and name.langID == 11) or (name.platformID == 3 and name.langID == 1041)
+        isEnglish = (name.platformID == 1 and name.langID == 0) or (name.platformID == 3 and name.langID == 1033)
+        isFamilyName = name.nameID == 1 or name.nameID == 16
 
-def isFamilyName(name):
-    return name.nameID == 1 or name.nameID == 16
+        if isJapanese and isFamilyName:
+            j_family_name = str(name)
 
-def check_availability(text: str, filepath: str): # -> (fontname, isavailable, abend, message)
+        if isEnglish and isFamilyName:
+            e_family_name = str(name)
+
+    if j_family_name:
+        return j_family_name
+    elif e_family_name:
+        return e_family_name
+    else:
+        return filepath[filepath.rfind('/')+1:] + ' (failed to read the font name)'
+
+def check_availability(text: str, filepath: str, discovered: typing.List[str]): # -> (fontname, isavailable, abend, message)
     'フォントファイルについて、そのフォント名と、textがそのフォントで利用可能であるか（利用可能な文字のみから構成されるか）を返す'
 
     # ファイルの存在確認
@@ -40,9 +55,16 @@ def check_availability(text: str, filepath: str): # -> (fontname, isavailable, a
         # https://fonttools.readthedocs.io/en/latest/ttLib/ttFont.html#fontTools.ttLib.ttFont.TTFont
         # https://aznote.jakou.com/prog/opentype/05_name.html
         with ttlib.TTFont(filepath, fontNumber=0) as fontfile:
-            # cmapテーブル、nameテーブルを取得
-            cmap: dict = fontfile.getBestCmap()
+            # nameテーブルからフォント名を取得
             name_table = fontfile['name'].names
+            fontname = get_fontname(name_table, filepath)
+
+            # そのフォントファミリーがすでに発見されていれば無視する
+            if fontname in discovered:
+                return (None, None, 1, 'this font family already discovered')
+
+            # cmapテーブルを取得
+            cmap: dict = fontfile.getBestCmap()
     except:
         return (None, None, 1, 'failed to read file')
 
@@ -52,25 +74,6 @@ def check_availability(text: str, filepath: str): # -> (fontname, isavailable, a
         available_chars = cmap.keys()
     else:
         return (None, None, 1, 'contains no font data suitable')
-
-    # フォント名を取得
-    # リファレンス（下記リンク）を参照
-    # https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6name.html
-    # https://learn.microsoft.com/en-us/typography/opentype/spec/name#platform-encoding-and-language-ids
-    j_family_name = e_family_name = ''
-    for name in name_table:
-        if isJapanese(name) and isFamilyName(name):
-            j_family_name = str(name)
-        
-        if isEnglish(name) and isFamilyName(name):
-            e_family_name = str(name)
-
-    if j_family_name:
-        fontname = j_family_name
-    elif e_family_name:
-        fontname = e_family_name
-    else:
-        fontname = filepath[filepath.rfind('/')+1:] + ' (failed to read the font name)'
 
     # 調べたいテキストの各文字について利用可能な文字か確認
     # 利用不可能な文字があればFalseを返し、なければTrueを返す
@@ -99,6 +102,7 @@ def main_for_dir(text: str, dirpath: str, is_verbose: bool, shows_paths: bool):
         return
 
     # 定義
+    discovered_fonts = set()
     available_fonts = set()
     fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
@@ -116,7 +120,7 @@ def main_for_dir(text: str, dirpath: str, is_verbose: bool, shows_paths: bool):
         # tqdmでプログレスバーを表示しながら全ファイルを巡回
         for filepath in paths:
             # 取得
-            fontname, isavailable, abend, message = check_availability(text, filepath)
+            fontname, isavailable, abend, message = check_availability(text, filepath, discovered_fonts)
 
             # 判定結果の出力
             no = str(k).rjust(digits_of_n) + '/' + str(n) + ' '
@@ -130,6 +134,11 @@ def main_for_dir(text: str, dirpath: str, is_verbose: bool, shows_paths: bool):
 
             # 記録
             # set型に入れて重複を回避
+            # 発見されたことを記録
+            if fontname:
+                    discovered_fonts.add(fontname)
+
+            # 利用可能であったことを記録
             if isavailable:
                 available_fonts.add(fontname)
 
@@ -137,16 +146,21 @@ def main_for_dir(text: str, dirpath: str, is_verbose: bool, shows_paths: bool):
                     fontname_to_paths[fontname].append(filepath)
                 else:
                     fontname_to_paths[fontname] = [filepath]
-            
+
             k += 1
     else:
         # tqdmでプログレスバーを表示しながら全ファイルを巡回
         for filepath in tqdm(all_fontfile_paths(dirpath)):
             # 取得
-            fontname, isavailable, abend, message = check_availability(text, filepath)
+            fontname, isavailable, abend, message = check_availability(text, filepath, discovered_fonts)
 
             # 記録
             # set型に入れて重複を回避
+            # 発見されたことを記録
+            if fontname:
+                    discovered_fonts.add(fontname)
+
+            # 利用可能であったことを記録
             if isavailable:
                 available_fonts.add(fontname)
 
@@ -179,6 +193,7 @@ def main_for_allfonts(text: str, is_verbose: bool, shows_paths: bool):
         print('Platform unsupported')
         sys.exit()
 
+    discovered_fonts = set()
     available_fonts = set()
     fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
@@ -189,7 +204,7 @@ def main_for_allfonts(text: str, is_verbose: bool, shows_paths: bool):
             # macではこのファイルがエイリアスとしてデフォルトであるらしいので無視
             if '/Library/Fonts/Arial Unicode.ttf' in paths:
                 paths.remove('/Library/Fonts/Arial Unicode.ttf')
-            
+
             k = 1
             n = len(paths)
             digits_of_n = len(str(n))
@@ -197,7 +212,7 @@ def main_for_allfonts(text: str, is_verbose: bool, shows_paths: bool):
             # tqdmでプログレスバーを表示しながら全ファイルを巡回
             for filepath in paths:
                 # 取得
-                fontname, isavailable, abend, message = check_availability(text, filepath)
+                fontname, isavailable, abend, message = check_availability(text, filepath, discovered_fonts)
 
                 # 判定結果の出力
                 no = str(k).rjust(digits_of_n) + '/' + str(n) + ' '
@@ -211,6 +226,11 @@ def main_for_allfonts(text: str, is_verbose: bool, shows_paths: bool):
 
                 # 記録
                 # set型に入れて重複を回避
+                # 発見されたことを記録
+                if fontname:
+                    discovered_fonts.add(fontname)
+
+                # 利用可能であったことを記録
                 if isavailable:
                     available_fonts.add(fontname)
 
@@ -225,9 +245,15 @@ def main_for_allfonts(text: str, is_verbose: bool, shows_paths: bool):
             # tqdmでプログレスバーを表示しながら全ファイルを巡回
             for filepath in tqdm(all_fontfile_paths(dirpath)):
                 # 取得
-                # set型に入れて重複を回避
-                fontname, isavailable, _, _ = check_availability(text, filepath)
+                fontname, isavailable, _, _ = check_availability(text, filepath, discovered_fonts)
 
+                # 記録
+                # set型に入れて重複を回避
+                # 発見されたことを記録
+                if fontname:
+                    discovered_fonts.add(fontname)
+
+                # 利用可能であったことを記録
                 if isavailable:
                     available_fonts.add(fontname)
 
