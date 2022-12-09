@@ -1,7 +1,7 @@
 import argparse
 import os
 import logging
-import udfs
+from . import udfs
 
 def main():
     # コマンドライン引数
