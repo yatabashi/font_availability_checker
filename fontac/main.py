@@ -5,13 +5,15 @@ from . import udfs
 
 def main():
     # コマンドライン引数
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description='`fontac` lists fonts which can display a text.'
+    )
 
     meg = parser.add_mutually_exclusive_group()
-    meg.add_argument('-f', '--file', help='the font file checked')
-    meg.add_argument('-d', '--directory', help='the directory which contains the font files checked')
-    parser.add_argument('-p', '--shows-paths', action='store_true', help='whether it outputs the paths of the applicable fonts besides')
-    parser.add_argument('-v', '--verbose', action='store_true', help='whether it outputs the results of the determinations of each font point by point')
+    meg.add_argument('-f', '--file', help='check a file')
+    meg.add_argument('-d', '--dir', help='check a dir')
+    parser.add_argument('-p', '--shows-paths', action='store_true', help='append the paths of the applicable fonts besides')
+    parser.add_argument('-v', '--verbose', action='store_true', help='output the results of the determinations of each font point by point')
     parser.add_argument('text')
 
     args = parser.parse_args()
@@ -20,9 +22,9 @@ def main():
     if args.file:
         type = 'file'
         path = os.path.abspath(args.file)
-    elif args.directory:
+    elif args.dir:
         type = 'dir'
-        path = os.path.abspath(args.directory)
+        path = os.path.abspath(args.dir)
     else:
         type = 'all'
 

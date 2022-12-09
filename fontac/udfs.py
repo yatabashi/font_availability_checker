@@ -31,7 +31,7 @@ def check_availability(text: str, filepath: str): # -> (fontname, isavailable, a
 
     # ファイルの存在確認
     if not os.path.isfile(filepath):
-        return (None, None, 1, 'File not found')
+        return (None, None, 1, 'file not found')
 
     # 当該フォントで利用可能な文字のdict（cmapテーブル）と、フォント名を得るためのnameテーブルを取得
     try:
@@ -44,14 +44,14 @@ def check_availability(text: str, filepath: str): # -> (fontname, isavailable, a
             cmap: dict = fontfile.getBestCmap()
             name_table = fontfile['name'].names
     except:
-        return (None, None, 1, 'Failed to read file')
+        return (None, None, 1, 'failed to read file')
 
     # cmapが有効（存在し、その要素数が1以上）だったらUnicode値のリストを取得
     # cmapはdictかNone
     if cmap:
         available_chars = cmap.keys()
     else:
-        return (None, None, 1, 'Contains no font data suitable')
+        return (None, None, 1, 'contains no font data suitable')
 
     # フォント名を取得
     # リファレンス（下記リンク）を参照
@@ -76,7 +76,7 @@ def check_availability(text: str, filepath: str): # -> (fontname, isavailable, a
     # 利用不可能な文字があればFalseを返し、なければTrueを返す
     for char in text:
         if ord(char) not in available_chars:
-            return (fontname, False, 0, f'it doesn\'t contain "{char}"')
+            return (fontname, False, 0, f'doesn\'t contain "{char}"')
 
     return (fontname, True, 0, '')
 
@@ -90,7 +90,7 @@ def main_for_file(text: str, filepath: str):
         else:
             print(f'No, unavailable; {message}')
     else:
-        print(message)
+        print(f'Error: {message}')
 
 def main_for_dir(text: str, dirpath: str, shows_paths: bool, is_verbose: bool):
     # ディレクトリの存在確認
