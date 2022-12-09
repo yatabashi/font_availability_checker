@@ -47,5 +47,10 @@ pip install git+https://github.com/yatabashi/font_availability_checker.git@main
 * 出力形式（検索対象が単一ファイルでない場合のみ有効）
     | CLI | main_direct.py | 説明 |
     | - | - | - |
+    | `-v`あり | `is_verbose == True` | 各フォントの判定結果を逐一出力する |
+    | `-v`なし | `is_verbose == False` | 各フォントの判定結果を出力しない |
+
+    | CLI | main_direct.py | 説明 |
+    | - | - | - |
     | `-p`あり | `show_paths == True` | フォント名と、対応するフォントファイルのパスを出力する |
     | `-p`なし | `show_paths == False` | フォント名のみを出力する（デフォルト） |

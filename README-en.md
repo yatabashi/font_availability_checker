@@ -49,5 +49,10 @@ When executing the program, set the text to be displayed, the search target and 
 * Output format (valid only if the search target is NOT a single font)
     | CLI | main_direct.py | description |
     | - | - | - |
+    | `-v`あり | `is_verbose == True` | Outputs the determinations of each font point by point |
+    | `-v`なし | `is_verbose == False` | Doesn't output the determinations of each font |
+
+    | CLI | main_direct.py | description |
+    | - | - | - |
     | with `-p` | `show_paths == True` | Outputs the font names and the paths of the corresponding files |
     | without `-p` | `show_paths == False` | Outputs the font names only |
