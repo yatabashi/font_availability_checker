@@ -31,7 +31,7 @@ You can also use the program by directly running the source file. In this case, 
     ```
     The options `-f` and `-d` are mutually exclusive. See below for details.
 * Direct use of source file:  
-    Make use of `fontac/main_direct.py`. The variables in line 5 to 9 need to be set. See below for details.
+    Make use of `fontac/main_direct.py`. The variables in line 5 to 8 need to be set. See below for details.
 
 When executing the program, specify the text to be displayed, the search target and the output format.
 * Text to be displayed
@@ -47,11 +47,6 @@ When executing the program, specify the text to be displayed, the search target 
     | without either | `type == 'all'` with `path` set | Output ones capable of displaying the specified text from among all the fonts installed (no limitation of search range) |
 
 * Output format (valid only if the search target is NOT a single font)
-    | CLI | main_direct.py | description |
-    | - | - | - |
-    | with `-v` | `is_verbose == True` | Output the determinations of each font point by point |
-    | without `-v` | `is_verbose == False` | Don't output the determinations of each font |
-
     | CLI | main_direct.py | description |
     | - | - | - |
     | with `-p` | `show_paths == True` | Output the font names and the paths of the corresponding files |

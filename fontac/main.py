@@ -12,7 +12,6 @@ def main():
     meg = parser.add_mutually_exclusive_group()
     meg.add_argument('-f', '--file', help='check a file')
     meg.add_argument('-d', '--dir', help='check a dir')
-    parser.add_argument('-v', '--verbose', action='store_true', help='output the results of the determinations of each font point by point')
     parser.add_argument('-p', '--shows-paths', action='store_true', help='append the paths of the applicable fonts to the output')
     parser.add_argument('text')
 
@@ -37,9 +36,9 @@ def main():
     if type == 'file':
         udfs.main_for_file(text, path)
     elif type == 'dir':
-        udfs.main_for_dir(text, path, args.verbose, args.shows_paths)
+        udfs.main_for_dir(text, path, args.shows_paths)
     elif type == 'all':
-        udfs.main_for_allfonts(text, args.verbose, args.shows_paths)
+        udfs.main_for_allfonts(text, args.shows_paths)
 
 if '__name__' == '__main__':
     main()
