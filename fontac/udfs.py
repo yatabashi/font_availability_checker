@@ -80,7 +80,7 @@ def get_font_number(file_path):
         return 1
 
 # ファイルに対する関数定義
-def fetch_availability(used_chars: set, file_path: str, discards: set = {}): # -> (abend, name, is_available, message)
+def fetch_availability(used_chars: set, file_path: str, ignored: set = {}): # -> (abend, name, is_available, message)
     if not os.path.isfile(file_path):
         return (1, None, None, 'file not found')
         
@@ -88,7 +88,7 @@ def fetch_availability(used_chars: set, file_path: str, discards: set = {}): # -
         with ttLib.TTFont(file_path, fontNumber=0) as font:
             name = get_family_name(font, file_path)
 
-            if name in discards:
+            if name in ignored:
                 return (1, name, None, 'discarded')
             
             cmap = font.getBestCmap()
