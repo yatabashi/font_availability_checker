@@ -27,11 +27,11 @@ You can also use the program by directly running the source file. In this case, 
 * Use as CLI tool:  
     The following format is recognised as a command:
     ```
-    fontac (-f [queried file] | -d [queried dir]) (-p) [text]
+    fontac (-f [queried file] | -d [queried dir]) (-t) (-p) [text]
     ```
     The options `-f` and `-d` are mutually exclusive. See below for details.
 * Direct use of source file:  
-    Make use of `fontac/main_direct.py`. The variables in line 5 to 8 need to be set. See below for details.
+    Make use of `fontac/main_direct.py`. The variables in line 5 to 9 need to be set. See below for details.
 
 When executing the program, specify the text to be displayed, the search target and the output format.
 * Text to be displayed
@@ -45,6 +45,12 @@ When executing the program, specify the text to be displayed, the search target 
     | with `-f` and file path | `type == 'file'` | Output whether the single font is capable of displaying the specified text |
     | with `-d` and dir path | `type == 'dir'` with `path` set | Output ones capable of displaying the specified text from among the fonts located in the specified directory (recursively searched) |
     | without either | `type == 'all'` with `path` set | Output ones capable of displaying the specified text from among all the fonts installed (no limitation of search range) |
+
+* Search method
+    | CLI | main_direct.py | 説明 |
+    | - | - | - |
+    | with `-t` | `requires_thoroughness = True` | Check subfamily names and examine every font in Collection file |
+    | without `-t` | `requires_thoroughness = False` | Ignore differences of subfamily names and examine only the first font in Collection file |
 
 * Output format (valid only if the search target is NOT a single font)
     | CLI | main_direct.py | description |
