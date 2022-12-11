@@ -68,12 +68,14 @@ def check_availability(text: str, filepath: str, discovered: typing.List[str]): 
     else:
         return (None, None, 1, 'contains no font data suitable')
 
-    # 調べたいテキストの各文字について利用可能な文字か確認
-    for char in text:
-        if ord(char) not in available_chars:
-            return (fontname, False, 0, f'doesn\'t contain "{char}"')
+    # 調べたいテキストが利用可能な文字のみからなるか確認
+    used_chars = set(text)
+    unavailable_chars = used_chars - available_chars
 
-    return (fontname, True, 0, '')
+    if len(unavailable_chars) == 0:
+        return (fontname, True, 0, '')
+    else:
+        return (fontname, False, 0, f'doesn\'t contain "{unavailable_chars}"')
 
 def main_for_file(text: str, filepath: str):
     # 取得
