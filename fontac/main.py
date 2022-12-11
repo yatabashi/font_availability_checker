@@ -21,16 +21,15 @@ def main():
     text = args.text
     if args.file:
         type = 'file'
-        path = os.path.abspath(args.file)
+        specified_path = os.path.abspath(args.file)
     elif args.dir:
         type = 'dir'
-        path = os.path.abspath(args.dir)
+        specified_path = os.path.abspath(args.dir)
     else:
         type = 'all'
 
     # 準備
     used_chars = {ord(character) for character in text}
-    specified_path = path
     requires_thoroughness = args.thorough
     shows_paths = args.shows_paths
 
