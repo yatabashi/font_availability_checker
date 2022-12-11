@@ -49,3 +49,7 @@ pip install git+https://github.com/yatabashi/font_availability_checker.git@main
     | - | - | - |
     | `-p`あり | `show_paths == True` | フォント名と、対応するフォントファイルのパスを出力する |
     | `-p`なし | `show_paths == False` | フォント名のみを出力する |
+
+<!-- TODO:
+available_fontsとfontname_to_paths.keys()に同じデータを保存していて冗長
+ -->
