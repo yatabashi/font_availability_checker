@@ -134,8 +134,7 @@ def extract_fonts_available(used_chars: set, dir_path: str):
         return None
 
     discovered_fonts = set()
-    available_fonts = set()
-    fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
+    available_fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
         
     for file_path in tqdm(get_fontfile_paths(dir_path)):
         _, font_name, is_available, _ = fetch_availability(used_chars, file_path, discovered_fonts)
@@ -143,21 +142,18 @@ def extract_fonts_available(used_chars: set, dir_path: str):
         discovered_fonts.add(font_name)
 
         if is_available:
-            available_fonts.add(font_name)
-
-            if font_name in fontname_to_paths:
-                fontname_to_paths[font_name].append(file_path)
+            if font_name in available_fontname_to_paths:
+                available_fontname_to_paths[font_name].append(file_path)
             else:
-                fontname_to_paths[font_name] = [file_path]
+                available_fontname_to_paths[font_name] = [file_path]
     
-    return (available_fonts, fontname_to_paths)
+    return available_fontname_to_paths
 
 def extract_fonts_available_with_thoroughness(used_chars: set, dir_path: str):
     if not os.path.isdir(dir_path):
         return None
 
-    available_fonts = set()
-    fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
+    available_fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
         
     for file_path in tqdm(get_fontfile_paths(dir_path)):
         results = fetch_availability_with_thoroughness(used_chars, file_path)
@@ -166,14 +162,12 @@ def extract_fonts_available_with_thoroughness(used_chars: set, dir_path: str):
             _, font_name, is_available, _ = result
 
             if is_available:
-                available_fonts.add(font_name)
-
-                if font_name in fontname_to_paths:
-                    fontname_to_paths[font_name].append(file_path)
+                if font_name in available_fontname_to_paths:
+                    available_fontname_to_paths[font_name].append(file_path)
                 else:
-                    fontname_to_paths[font_name] = [file_path]
+                    available_fontname_to_paths[font_name] = [file_path]
 
-    return (available_fonts, fontname_to_paths)
+    return available_fontname_to_paths
 
 # mainから実行する関数定義
 def process_on_file(used_chars, specified_path, requires_thoroughness):
@@ -203,21 +197,20 @@ def process_on_file(used_chars, specified_path, requires_thoroughness):
 
 def process_on_dir(used_chars, specified_path, requires_thoroughness, shows_paths):
     if requires_thoroughness:
-        result = extract_fonts_available_with_thoroughness(used_chars, specified_path)
+        available_fontname_to_paths = extract_fonts_available_with_thoroughness(used_chars, specified_path)
     else:
-        result = extract_fonts_available(used_chars, specified_path)
+        available_fontname_to_paths = extract_fonts_available(used_chars, specified_path)
 
-    if result is None:
+    if available_fontname_to_paths is None:
         print('dir not found')
 
-    available_fonts, fontname_to_paths = result
-    available_fonts_sorted = sorted(list(available_fonts))
+    available_fonts_sorted = sorted(list(available_fontname_to_paths.keys()))
 
     print(f'{len(available_fonts_sorted)} hits:')
 
     if shows_paths:
         for available_font in available_fonts_sorted:
-            print(f'{available_font}: {fontname_to_paths[available_font]}')
+            print(f'{available_font}: {available_fontname_to_paths[available_font]}')
     else:
         for available_font in available_fonts_sorted:
             print(available_font)
@@ -233,35 +226,30 @@ def process_on_all(used_chars, requires_thoroughness, shows_paths):
         print('Platform unsupported')
         return
 
-    all_available_fonts = set()
-    all_fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
+    all_available_fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
     print(f'{len(dir_paths)} directories are to loaded.')
     for dir_path in dir_paths:
         if requires_thoroughness:
-            result = extract_fonts_available_with_thoroughness(used_chars, dir_path)
+            available_fontname_to_paths = extract_fonts_available_with_thoroughness(used_chars, dir_path)
         else:
-            result = extract_fonts_available(used_chars, dir_path)
+            available_fontname_to_paths = extract_fonts_available(used_chars, dir_path)
 
         # resultがNoneとなる（dirが見つからない）ことがもしあったらエラーを吐くべき
 
-        available_fonts, fontname_to_paths = result
-
-        all_available_fonts.update(available_fonts)
-
-        for fontname, paths in fontname_to_paths.items():
-            if fontname in all_fontname_to_paths.keys():
-                all_fontname_to_paths[fontname].extend(paths)
+        for fontname, paths in available_fontname_to_paths.items():
+            if fontname in all_available_fontname_to_paths.keys():
+                all_available_fontname_to_paths[fontname].extend(paths)
             else:
-                all_fontname_to_paths[fontname] = paths
+                all_available_fontname_to_paths[fontname] = paths
 
-    all_available_fonts_sorted = sorted(list(all_available_fonts))
+    all_available_fonts_sorted = sorted(list(all_available_fontname_to_paths.keys()))
 
     print(f'{len(all_available_fonts_sorted)} hits:')
 
     if shows_paths:
         for available_font in all_available_fonts_sorted:
-            print(f'{available_font}: {all_fontname_to_paths[available_font]}')
+            print(f'{available_font}: {all_available_fontname_to_paths[available_font]}')
     else:
         for available_font in all_available_fonts_sorted:
             print(available_font)
