@@ -20,7 +20,7 @@ def get_fontfile_paths(dirpath: str):
 
     return sorted(paths)
 
-def get_font_name(fontfile, filepath):
+def get_family_name(fontfile, filepath):
     name_table = fontfile['name'].names
 
     # リファレンスを参照：https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6name.html, https://learn.microsoft.com/en-us/typography/opentype/spec/name#platform-encoding-and-language-ids
@@ -44,7 +44,7 @@ def get_font_name(fontfile, filepath):
     else:
         return filepath[filepath.rfind('/')+1:] + ' (failed to read the font name)'
 
-def check_availability(text: str, filepath: str, discovered: typing.List[str]): # -> (fontname, isavailable, abend, message)
+def check_availability(text: str, filepath: str, discards: typing.List[str]): # -> (fontname, isavailable, abend, message)
     if not os.path.isfile(filepath):
         return (None, None, 1, 'file not found')
 
@@ -53,9 +53,9 @@ def check_availability(text: str, filepath: str, discovered: typing.List[str]): 
         # fontNumber=0 は.ttc/.otcの場合にフォントを指定するためのもの。.ttf/.otfの場合、この設定は無視される。
         # 参照：https://fonttools.readthedocs.io/en/latest/ttLib/ttFont.html#fontTools.ttLib.ttFont.TTFont, https://aznote.jakou.com/prog/opentype/05_name.html
         with ttlib.TTFont(filepath, fontNumber=0) as fontfile:
-            fontname = get_font_name(fontfile, filepath)
+            fontname = get_family_name(fontfile, filepath)
 
-            if fontname in discovered:
+            if fontname in discards:
                 return (None, None, 1, 'this font family already discovered')
             
             cmap: dict = fontfile.getBestCmap()
@@ -69,7 +69,7 @@ def check_availability(text: str, filepath: str, discovered: typing.List[str]): 
         return (None, None, 1, 'contains no font data suitable')
 
     # 調べたいテキストが利用可能な文字のみからなるか確認
-    used_chars = set(text)
+    used_chars = {ord(character) for character in text}
     unavailable_chars = used_chars - available_chars
 
     if len(unavailable_chars) == 0:
