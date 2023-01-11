@@ -94,7 +94,8 @@ def fetch_availability(used_chars: set, file_path: str, ignored: set = {}): # ->
             cmap = font.getBestCmap()
             available_chars = cmap.keys()
 
-            used_and_unavailable_chars = used_chars - available_chars
+            used_and_unavailable_chars_ord = used_chars - available_chars
+            used_and_unavailable_chars = {chr(char_ord) for char_ord in used_and_unavailable_chars_ord}
 
             if len(used_and_unavailable_chars) == 0:
                 return (0, name, True, '')
@@ -117,7 +118,8 @@ def fetch_availability_with_thoroughness(used_chars: set, file_path: str): # .tt
                 cmap = font.getBestCmap()
                 available_chars = cmap.keys()
 
-                used_and_unavailable_chars = used_chars - available_chars
+                used_and_unavailable_chars_ord = used_chars - available_chars
+                used_and_unavailable_chars = {chr(char_ord) for char_ord in used_and_unavailable_chars_ord}
 
                 if len(used_and_unavailable_chars) == 0:
                     returns.append((0, name, True, ''))
@@ -203,6 +205,7 @@ def process_on_dir(used_chars, specified_path, requires_thoroughness, shows_path
 
     if available_fontname_to_paths is None:
         print('dir not found')
+        return
 
     available_fonts_sorted = sorted(list(available_fontname_to_paths.keys()))
 
