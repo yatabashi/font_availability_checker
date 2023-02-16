@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name = 'fontac', # パッケージ名
     description='extracts fonts available for a specified text, from all the ones installed as default',
-    version = '1.1.2',
+    version = '1.2',
     author='yatabashi',
     install_requires = ['fontTools', 'tqdm'],
     packages=['fontac'],

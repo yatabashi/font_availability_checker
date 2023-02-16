@@ -83,14 +83,14 @@ def get_font_number(file_path):
 def fetch_availability(used_chars: set, file_path: str, ignored: set = {}): # -> (abend, name, is_available, message)
     if not os.path.isfile(file_path):
         return (1, None, None, 'file not found')
-        
+
     try:
         with ttLib.TTFont(file_path, fontNumber=0) as font:
             name = get_family_name(font, file_path)
 
             if name in ignored:
                 return (1, name, None, 'discarded')
-            
+
             cmap = font.getBestCmap()
             available_chars = cmap.keys()
 
@@ -107,7 +107,7 @@ def fetch_availability(used_chars: set, file_path: str, ignored: set = {}): # ->
 def fetch_availability_with_thoroughness(used_chars: set, file_path: str): # .ttc/.otc対応のため、list()を返す
     if not os.path.isfile(file_path):
         return [(1, None, None, 'file not found')]
-        
+
     returns = []
 
     for i in range(get_font_number(file_path)):
@@ -127,18 +127,23 @@ def fetch_availability_with_thoroughness(used_chars: set, file_path: str): # .tt
                     returns.append((0, name, False, f'unavailable are {used_and_unavailable_chars}'))
         except:
             returns.append((1, None, None, 'failed to load'))
-    
+
     return returns
 
 # ディレクトリに対する関数定義
-def extract_fonts_available(used_chars: set, dir_path: str):
+def extract_fonts_available(used_chars: set, dir_path: str, quiet: bool):
     if not os.path.isdir(dir_path):
         return None
 
     discovered_fonts = set()
     available_fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
-        
-    for file_path in tqdm(get_fontfile_paths(dir_path)):
+
+    if quiet:
+        fontfile_paths = get_fontfile_paths(dir_path)
+    else:
+        fontfile_paths = tqdm(get_fontfile_paths(dir_path))
+
+    for file_path in fontfile_paths:
         _, font_name, is_available, _ = fetch_availability(used_chars, file_path, discovered_fonts)
 
         discovered_fonts.add(font_name)
@@ -148,16 +153,21 @@ def extract_fonts_available(used_chars: set, dir_path: str):
                 available_fontname_to_paths[font_name].append(file_path)
             else:
                 available_fontname_to_paths[font_name] = [file_path]
-    
+
     return available_fontname_to_paths
 
-def extract_fonts_available_with_thoroughness(used_chars: set, dir_path: str):
+def extract_fonts_available_with_thoroughness(used_chars: set, dir_path: str, quiet: bool):
     if not os.path.isdir(dir_path):
         return None
 
     available_fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
-        
-    for file_path in tqdm(get_fontfile_paths(dir_path)):
+
+    if quiet:
+        fontfile_paths = get_fontfile_paths(dir_path)
+    else:
+        fontfile_paths = tqdm(get_fontfile_paths(dir_path))
+
+    for file_path in fontfile_paths:
         results = fetch_availability_with_thoroughness(used_chars, file_path)
 
         for result in results:
@@ -183,9 +193,9 @@ def process_on_file(used_chars, specified_path, requires_thoroughness):
                 print(f'ERROR: {message}')
             else:
                 if is_available:
-                    print(f'Yes, {name} is available.')
+                    print(f'Yes. {name} is available.')
                 else:
-                    print(f'No, {name} is unavailable: {message}')
+                    print(f'No. {name} is NOT available: {message}')
     else:
         abend, name, is_available, message = fetch_availability(used_chars, specified_path)
 
@@ -193,15 +203,15 @@ def process_on_file(used_chars, specified_path, requires_thoroughness):
             print(f'ERROR: {message}')
         else:
             if is_available:
-                print(f'Yes, {name} is available.')
+                print(f'Yes. {name} is available.')
             else:
-                print(f'No, {name} is unavailable: {message}')
+                print(f'No. {name} is NOT available: {message}')
 
-def process_on_dir(used_chars, specified_path, requires_thoroughness, shows_paths):
+def process_on_dir(used_chars, specified_path, requires_thoroughness, shows_paths, quiet):
     if requires_thoroughness:
-        available_fontname_to_paths = extract_fonts_available_with_thoroughness(used_chars, specified_path)
+        available_fontname_to_paths = extract_fonts_available_with_thoroughness(used_chars, specified_path, quiet)
     else:
-        available_fontname_to_paths = extract_fonts_available(used_chars, specified_path)
+        available_fontname_to_paths = extract_fonts_available(used_chars, specified_path, quiet)
 
     if available_fontname_to_paths is None:
         print('dir not found')
@@ -218,7 +228,7 @@ def process_on_dir(used_chars, specified_path, requires_thoroughness, shows_path
         for available_font in available_fonts_sorted:
             print(available_font)
 
-def process_on_all(used_chars, requires_thoroughness, shows_paths):
+def process_on_all(used_chars, requires_thoroughness, shows_paths, quiet):
     platform = sys.platform
 
     if platform == 'darwin':
@@ -231,12 +241,14 @@ def process_on_all(used_chars, requires_thoroughness, shows_paths):
 
     all_available_fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
-    print(f'{len(dir_paths)} directories are to loaded.')
+    if not quiet:
+        print(f'{len(dir_paths)} directories are to loaded.')
+    
     for dir_path in dir_paths:
         if requires_thoroughness:
-            available_fontname_to_paths = extract_fonts_available_with_thoroughness(used_chars, dir_path)
+            available_fontname_to_paths = extract_fonts_available_with_thoroughness(used_chars, dir_path, quiet)
         else:
-            available_fontname_to_paths = extract_fonts_available(used_chars, dir_path)
+            available_fontname_to_paths = extract_fonts_available(used_chars, dir_path, quiet)
 
         # resultがNoneとなる（dirが見つからない）ことがもしあったらエラーを吐くべき
 

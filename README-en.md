@@ -4,7 +4,7 @@ i.e. <ins>Font</ins> <ins>A</ins>vailability <ins>C</ins>hecker
 
 In other languages: [日本語](./README.md)
 
-`fontac` lists fonts which can display a text.
+`fontac` lists the fonts capable of displaying the given text.
 
 ## Installation
 (only on macOS) The following command enables its use as a CLI tool:

@@ -14,6 +14,7 @@ def main():
     meg.add_argument('-d', '--dir', help='check a dir')
     parser.add_argument('-t', '--thorough', action='store_true', help='target literally all the fonts included')
     parser.add_argument('-p', '--shows-paths', action='store_true', help='append the paths of the applicable fonts to the output')
+    parser.add_argument('-q', '--quiet', action='store_true', help='not display the progress of search')
     parser.add_argument('text')
 
     args = parser.parse_args()
@@ -32,6 +33,7 @@ def main():
     used_chars = {ord(character) for character in text}
     requires_thoroughness = args.thorough
     shows_paths = args.shows_paths
+    quiet = args.quiet
 
     logging.disable(logging.WARNING) # リンク参照unpackPStrings()内での警告出力を抑制：https://fonttools.readthedocs.io/en/latest/_modules/fontTools/ttLib/tables/_p_o_s_t.html
 
@@ -39,9 +41,9 @@ def main():
     if type == 'file':
         udfs.process_on_file(used_chars, specified_path, requires_thoroughness)
     elif type == 'dir':
-        udfs.process_on_dir(used_chars, specified_path, requires_thoroughness, shows_paths)
+        udfs.process_on_dir(used_chars, specified_path, requires_thoroughness, shows_paths, quiet)
     elif type == 'all':
-        udfs.process_on_all(used_chars, requires_thoroughness, shows_paths)
+        udfs.process_on_all(used_chars, requires_thoroughness, shows_paths, quiet)
 
 if '__name__' == '__main__':
     main()
