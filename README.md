@@ -4,21 +4,16 @@ i.e. <ins>Font</ins> <ins>A</ins>vailability <ins>C</ins>hecker
 
 他言語版：[English](./README-en.md)
 
-`fontac`は、ある文字列を表示可能なフォントをリストアップするプログラムです。
+`fontac`は、指定した文字列を表示可能なフォントをリストアップするプログラムです。
 
 ## インストール
-CLIツールとして利用する（macOSでのみ可能）ためには、次のコマンドを実行してください：
+CLIツールとして利用する（macOSにのみ対応）ためには、次のコマンドを実行してください：
 ```
 pip install git+https://github.com/yatabashi/font_availability_checker.git@main
 ```
 アンインストールは`pip uninstall fontac`で可能です。
 
-また、ソースファイルを直接実行して利用することも可能です。その場合、次のようにしてパッケージをダウンロードしてください。
-* Gitがインストールされている場合、次を実行する：  
-    ```
-    git clone https://github.com/yatabashi/font_availability_checker.git
-    ```
-* Gitがインストールされて**いない**場合、緑色のボタン「Code」をクリックし、「Download ZIP」からZIPファイルをダウンロードして、これを展開する。
+また、ソースファイルを直接実行することも可能です。
 
 ## 使い方
 * CLIツールとして使う：  

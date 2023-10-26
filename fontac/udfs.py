@@ -100,7 +100,7 @@ def fetch_availability(used_chars: set, file_path: str, ignored: set = {}): # ->
             if len(used_and_unavailable_chars) == 0:
                 return (0, name, True, '')
             else:
-                return (0, name, False, f'unavailable are {used_and_unavailable_chars}')
+                return (0, name, False, f'unavailable characters are: {used_and_unavailable_chars}')
     except:
         return (1, None, None, 'failed to load')
 
@@ -124,7 +124,7 @@ def fetch_availability_with_thoroughness(used_chars: set, file_path: str): # .tt
                 if len(used_and_unavailable_chars) == 0:
                     returns.append((0, name, True, ''))
                 else:
-                    returns.append((0, name, False, f'unavailable are {used_and_unavailable_chars}'))
+                    returns.append((0, name, False, f'unavailable characters are: {used_and_unavailable_chars}'))
         except:
             returns.append((1, None, None, 'failed to load'))
 
@@ -242,7 +242,7 @@ def process_on_all(used_chars, requires_thoroughness, shows_paths, quiet):
     all_available_fontname_to_paths: typing.Dict[str, typing.List[str]] = dict()
 
     if not quiet:
-        print(f'{len(dir_paths)} directories are to loaded.')
+        print(f'{len(dir_paths)} directories will be searched.')
     
     for dir_path in dir_paths:
         if requires_thoroughness:
